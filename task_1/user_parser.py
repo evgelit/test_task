@@ -19,11 +19,11 @@ class UserParser:
         )
         self.client.start()
 
-    def parse_users(self, dialog_name: str):
+    def parse_users(self, dialog_name: str, incl_bots=False):
         dialog = self.__get_dialog(dialog_name)
         if dialog is None:
             raise Exception(f"Dialog with name\"{dialog_name}\" not found")
-        users = self.__get_users(dialog)
+        users = self.__get_users(dialog, incl_bots)
         users['gender'] = [self.__get_gender(x) for x in users['name']]
         self.__write_result(users)
 
