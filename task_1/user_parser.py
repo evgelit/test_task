@@ -22,13 +22,19 @@ class UserParser:
         )
         self.client.start()
 
-    def parse_users(self, dialog_name: str, incl_bots=False):
+    def parse_users(self, dialog_name: str, incl_bots=False) -> None:
         dialog = self.__get_dialog(dialog_name)
         if dialog is None:
             raise Exception(f"Dialog with name\"{dialog_name}\" not found")
         users = self.__get_users(dialog, incl_bots)
         users['gender'] = [self.__get_gender(x) for x in users['name']]
         self.__write_result(users)
+
+    def __get_dialog(self, dialog_name) -> Dialog or None:
+        for dialog in self.client.iter_dialogs():
+            if dialog.title == dialog_name:
+                return dialog
+        return None
 
     def __get_users(self, dialog: Dialog, incl_bots=False) -> DataFrame:
         users = DataFrame(columns=["username", "name", "last_name"])
@@ -42,20 +48,10 @@ class UserParser:
             ]
         return users
 
-    def __get_dialog(self, dialog_name) -> Dialog or None:
-        for dialog in self.client.iter_dialogs():
-            if dialog.title == dialog_name:
-                return dialog
-        return None
-
-    def __get_gender(self, name):
+    def __get_gender(self, name) -> str:
         regex = compile('[^a-zA-Zа-яА-Я]')
         name = regex.sub('', name)
         return 'f' if name.strip()[-1] in self.VOWEL_SET else 'm'
-
-    def __get_path(self, file_name: str) -> str:
-        path = Path(__file__).with_name('data')
-        return f"{path.absolute()}/{file_name}"
 
     def __write_result(self, users: DataFrame) -> None:
         with open(self.__get_path(self.MALE_USERS_FILE), 'w') as male_file:
@@ -83,3 +79,8 @@ class UserParser:
                 indent=4,
                 ensure_ascii=False
             )
+
+    def __get_path(self, file_name: str) -> str:
+        path = Path(__file__).with_name('data')
+        return f"{path.absolute()}/{file_name}"
+
