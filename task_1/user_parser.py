@@ -10,6 +10,9 @@ import json
 class UserParser:
 
     VOWEL_SET = {"а", "я", "y", "a", "e"}
+    FEMALE_USERS_FILE = "female.txt"
+    MALE_USERS_FILE = "male.txt"
+    JSON_USERS_FILE = "users.json"
 
     def __init__(self, session_name: str):
         self.client = TelegramClient(
@@ -55,20 +58,20 @@ class UserParser:
         return f"{path.absolute()}/{file_name}"
 
     def __write_result(self, users: DataFrame) -> None:
-        with open(self.__get_path('male.txt'), 'w') as male_file:
+        with open(self.__get_path(self.MALE_USERS_FILE), 'w') as male_file:
             male_data = users[users.gender == "m"].username.to_string(
                 header=False,
                 index=False
             )
             male_file.write(male_data)
-        with open(self.__get_path('female.txt'), 'w') as female_file:
+        with open(self.__get_path(self.FEMALE_USERS_FILE), 'w') as female_file:
             female_data = users[users.gender == "f"].username.to_string(
                 header=False,
                 index=False
             )
             female_file.write(female_data)
         users.drop('gender', axis='columns', inplace=True)
-        with open(self.__get_path('users.json'), "w") as json_file:
+        with open(self.__get_path(self.JSON_USERS_FILE), "w") as json_file:
             json.dump(
                 dict(
                     zip(
